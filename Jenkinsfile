@@ -1,8 +1,12 @@
 pipeline {
  agent any
+ environment {
+ MAJOR_VERSION = 1
+ }
  stages {
  stage('build') {
  steps {
+
  sh 'javac -d . src/*.java'
  sh 'echo Main-Class: Rectangulator > MANIFEST.MF'
  sh 'jar -cvmf MANIFEST.MF rectangle.jar *.class'
@@ -34,6 +38,16 @@ pipeline {
  sh 'git merge development'
  echo 'Git Push to Origin'
  sh 'git push origin master'
+ }
+ }
+ stage('Tagging the Release') {
+ when {
+ branch 'master'
+ }
+ steps {
+ sh "git tag rectangle-${env.MAJOR_VERSION}.${BUILD_NUMBER}"
+ sh "git push origin rectangle-${env.MAJOR_VERSION}.${BUILD_
+NUMBER}"
  }
  }
  }
